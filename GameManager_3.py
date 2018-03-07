@@ -71,10 +71,10 @@ class GameManager:
             if turn == PLAYER_TURN:
                 print("Player's Turn:", end="")
                 move = self.playerAI.getMove(gridCopy)
-                print(actionDic[move])
 
                 # Validate Move
                 if move != None and move >= 0 and move < 4:
+                    print(actionDic[move])
                     if self.grid.canMove([move]):
                         self.grid.move(move)
 
