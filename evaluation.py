@@ -1,24 +1,14 @@
+#暴力，全取2, minmax
 from random import randint
-def smooth(grid):
-    credit = 0
+import math
+
+def space(grid):
+    space = 0
     for x in range(grid.size):
-        for y in range(1, grid.size):
-            if grid.map[x][y] is 0 or grid.map[x][y-1] is 0:
-                continue
-
-            if max(grid.map[x][y-1]/grid.map[x][y], grid.map[x][y]/grid.map[x][y-1]) < 4:
-                credit += 1000
-
-    for y in range(grid.size):
-        for x in range(1, grid.size):
-            if grid.map[x][y] is 0 or grid.map[x-1][y] is 0:
-                continue
-
-            if max(grid.map[x][y]/grid.map[x-1][y], grid.map[x-1][y]/grid.map[x][y]) < 4:
-                credit += 1000
-
-    # print ("smooth: %g"%credit)
-    return credit
+        for y in range(grid.size):
+            if grid.map[x][y] is 0:
+                space += 1
+    return space
 
 def monotony(grid):
     credit = 0
@@ -30,67 +20,28 @@ def monotony(grid):
             if grid.map[x][y] is 0:
                 continue
 
-            if grid.map[x][y-1] is 0:
-                credit -= grid.map[x][y]*800
-
-            elif grid.map[x][y-1]/grid.map[x][y] is 1:
-                credit += 600 * grid.map[x][y-1]
+            if grid.map[x][y-1]/grid.map[x][y] is 1:
+                credit += 40 * (grid.map[x][y-1]**4)
 
             elif grid.map[x][y-1]/grid.map[x][y] is 2:
-                credit += 500 * grid.map[x][y-1]
+                credit += 20 * (grid.map[x][y-1])
+            else:
+                credit -= 10 * (grid.map[x][y])
 
     for y in range(grid.size):
         for x in range(1, grid.size):
             if grid.map[x][y] is 0:
                 continue
 
-            if grid.map[x-1][y] is 0:
-                credit -= grid.map[x][y]*800
+            if grid.map[x-1][y]/grid.map[x][y] is 1:
+                credit += 40 * (grid.map[x-1][y]**4)
 
-            elif grid.map[x-1][y]/grid.map[x][y] is 1:
-                credit += 600 * grid.map[x-1][y]
+            elif grid.map[x-1][y]/grid.map[x][y] is 2:
+                credit += 20 * (grid.map[x-1][y])
 
-            elif grid.map[x - 1][y]/grid.map[x][y] is 2:
-                credit += 500 * grid.map[x-1][y]
-
-    # print("monotony: %g" % credit)
-    return credit
-
-def monotony1(grid):
-    credit = 0
-    if grid.size <= 2:
-        return credit
-
-    for x in range(grid.size):
-        for y in range(grid.size):
-            if x % 2 is 0:
-                if y is 0 or grid.map[x][y] is 0:
-                    continue
-
-                if grid.map[x][y-1] is 0:
-                    credit -= grid.map[x][y]*500 * (x+1)
-
-                elif grid.map[x][y-1]/grid.map[x][y] is 1:
-                    credit += 100 * grid.map[x][y-1] * (x+1)
-
-                elif grid.map[x][y-1]/grid.map[x][y] is 2:
-                    credit += 800 * grid.map[x][y-1] * (x+1)
             else:
-                if y is grid.size-1 or grid.map[x][y] is 0:
-                    continue
-
-                if grid.map[x][y+1] is 0:
-                    credit -= grid.map[x][y] * 500 * (x+1)
-
-                elif grid.map[x][y+1] / grid.map[x][y] is 1:
-                    credit += 100 * grid.map[x][y+1] * (x+1)
-
-                elif grid.map[x][y+1] / grid.map[x][y] is 2:
-                    credit += 800 * grid.map[x][y+1] * (x+1)
-
-    # print("monotony: %g" % credit)
+                credit -= 10 * (grid.map[x][y])
     return credit
-
 
 def density(grid):
     space = 0
@@ -99,18 +50,74 @@ def density(grid):
     for x in range(grid.size):
         for y in range(grid.size):
             if grid.map[x][y] is not 0:
-                s += grid.map[x][y]
-                space += 1
+                s += grid.map[x][y]**2
+            else: space += 1
     # print("space: %g" % credit)
-    return s/space, space
+    return s/(16-space), space
+
+
+def monotony1(grid):
+    credit = 0
+    if grid.size <= 2:
+        return credit
+
+    for x in range(grid.size):
+        for y in range(1, grid.size):
+            if grid.map[x][y] is 0:
+                credit -= grid.map[x][y-1] ** 1.5
+                continue
+
+            elif grid.map[x][y-1] is 0:
+                credit -= grid.map[x][y] ** 1.5
+                continue
+            rate = (grid.map[x][y-1]/grid.map[x][y])**3
+            test = rate + 1.0 / rate
+            credit += 10 * grid.map[x][y] / test
+
+
+    for y in range(grid.size):
+        for x in range(1, grid.size):
+            if grid.map[x][y] is 0:
+                credit -= grid.map[x-1][y] ** 1.5
+                continue
+
+            elif grid.map[x-1][y] is 0:
+                credit -= grid.map[x][y] ** 1.5
+                continue
+
+            rate = (grid.map[x-1][y] / grid.map[x][y])**3
+            test = rate + 1.0 / rate
+
+            credit += 10 * grid.map[x][y] / test
+
+    return credit
+
+def density1(grid):
+    space = 0
+    s = 0
+
+    for x in range(grid.size):
+        for y in range(grid.size):
+            if grid.map[x][y] is not 0:
+                s += grid.map[x][y]**2
+            else: space += 1
+    # print("space: %g" % credit)
+    return s/(16-space), space
 
 
 def score(grid):
-    m = monotony1(grid)
-    d, space = density(grid)
+    d, space = density1(grid)
+    highest = grid.getMaxTile()
 
    # print (m, sp, 10 * grid.getMaxTile())
-    score = m + 8000/space + d * 600 + grid.getMaxTile() * grid.getMaxTile()
+    # 50的时候可以达到1024 median
+    if highest < 1024:
+        m = monotony(grid)
+        d, space = density(grid)
+        score = m * math.sqrt(highest) + d * highest
+    else:
+        m = monotony1(grid)
+        score = m * math.sqrt(highest) + 5 * d * highest + 10 * highest**2
 
     return score
 
