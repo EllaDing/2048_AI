@@ -136,7 +136,7 @@ def main():
     gameManager.start()
 
 if __name__ == '__main__':
-    count = 20
+    count = 30
     while count:
         main()
         count -= 1
