@@ -54,7 +54,7 @@ class GameManager:
         for i in range(self.initTiles):
             self.insertRandonTile()
 
-#        self.displayer.display(self.grid)
+        self.displayer.display(self.grid)
 
         # Player AI Goes First
         turn = PLAYER_TURN
@@ -69,12 +69,12 @@ class GameManager:
             move = None
 
             if turn == PLAYER_TURN:
-                #print("Player's Turn:", end="")
+                print("Player's Turn:", end="")
                 move = self.playerAI.getMove(gridCopy)
+                print(actionDic[move])
 
                 # Validate Move
                 if move != None and move >= 0 and move < 4:
-                    #print(actionDic[move])
                     if self.grid.canMove([move]):
                         self.grid.move(move)
 
@@ -104,8 +104,6 @@ class GameManager:
             self.updateAlarm(time.clock())
 
             turn = 1 - turn
-        with open('/Users/dingyi/Documents/graduate/ai/hw2/2048_AI/test.txt', 'a') as f:
-            f.write("%d\n" % maxTile)
         print(maxTile)
 
     def isGameOver(self):
@@ -136,7 +134,4 @@ def main():
     gameManager.start()
 
 if __name__ == '__main__':
-    count = 30
-    while count:
-        main()
-        count -= 1
+    main()
